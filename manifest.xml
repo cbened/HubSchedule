@@ -6,17 +6,18 @@
   xsi:type="MailApp">
 
   <Id>f8b213ac-4ef0-4e7a-acf0-2f501a6dd6e0</Id>
-  <Version>1.0.0.0</Version>
+  <Version>1.1.0.0</Version>
   <ProviderName>HubSchedule</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="HubSchedule Submissions"/>
-  <Description DefaultValue="View recent HubSpot form submissions in Outlook."/>
+  <Description DefaultValue="Open the HubSpot submissions page directly in an Outlook side pane."/>
   <IconUrl DefaultValue="https://localhost:3000/icon-64.png.txt"/>
   <HighResolutionIconUrl DefaultValue="https://localhost:3000/icon-128.png.txt"/>
   <SupportUrl DefaultValue="https://localhost:3000/support"/>
 
   <AppDomains>
     <AppDomain>https://localhost:3000</AppDomain>
+    <AppDomain>https://app.hubspot.com</AppDomain>
   </AppDomains>
 
   <Hosts>
@@ -36,11 +37,17 @@
         <RequestedHeight>450</RequestedHeight>
       </DesktopSettings>
     </Form>
+    <Form xsi:type="ItemEdit">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://localhost:3000/index.html"/>
+      </DesktopSettings>
+    </Form>
   </FormSettings>
 
-  <Permissions>ReadItem</Permissions>
+  <Permissions>ReadWriteItem</Permissions>
   <Rule xsi:type="RuleCollection" Mode="Or">
     <Rule xsi:type="ItemIs" ItemType="Message" FormType="Read"/>
+    <Rule xsi:type="ItemIs" ItemType="Appointment" FormType="Edit"/>
   </Rule>
 
   <DisableEntityHighlighting>false</DisableEntityHighlighting>
@@ -57,11 +64,35 @@
       <Host xsi:type="MailHost">
         <DesktopFormFactor>
           <FunctionFile resid="Commands.Url"/>
+
           <ExtensionPoint xsi:type="MessageReadCommandSurface">
             <OfficeTab id="TabDefault">
-              <Group id="HubSchedule.Group">
+              <Group id="HubSchedule.Read.Group">
                 <Label resid="HubSchedule.GroupLabel"/>
-                <Control xsi:type="Button" id="HubSchedule.OpenPaneButton">
+                <Control xsi:type="Button" id="HubSchedule.Read.OpenPaneButton">
+                  <Label resid="HubSchedule.ButtonLabel"/>
+                  <Supertip>
+                    <Title resid="HubSchedule.ButtonLabel"/>
+                    <Description resid="HubSchedule.ButtonDescription"/>
+                  </Supertip>
+                  <Icon>
+                    <bt:Image size="16" resid="Icon.16x16"/>
+                    <bt:Image size="32" resid="Icon.32x32"/>
+                    <bt:Image size="80" resid="Icon.80x80"/>
+                  </Icon>
+                  <Action xsi:type="ShowTaskpane">
+                    <SourceLocation resid="Taskpane.Url"/>
+                  </Action>
+                </Control>
+              </Group>
+            </OfficeTab>
+          </ExtensionPoint>
+
+          <ExtensionPoint xsi:type="AppointmentOrganizerCommandSurface">
+            <OfficeTab id="TabDefault">
+              <Group id="HubSchedule.Calendar.Group">
+                <Label resid="HubSchedule.GroupLabel"/>
+                <Control xsi:type="Button" id="HubSchedule.Calendar.OpenPaneButton">
                   <Label resid="HubSchedule.ButtonLabel"/>
                   <Supertip>
                     <Title resid="HubSchedule.ButtonLabel"/>
@@ -95,10 +126,10 @@
       </bt:Urls>
       <bt:ShortStrings>
         <bt:String id="HubSchedule.GroupLabel" DefaultValue="HubSchedule"/>
-        <bt:String id="HubSchedule.ButtonLabel" DefaultValue="Recent Submissions"/>
+        <bt:String id="HubSchedule.ButtonLabel" DefaultValue="Open Submissions"/>
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="HubSchedule.ButtonDescription" DefaultValue="Open HubSpot form submissions pane."/>
+        <bt:String id="HubSchedule.ButtonDescription" DefaultValue="Open HubSpot submissions in the side pane."/>
       </bt:LongStrings>
     </Resources>
   </VersionOverrides>

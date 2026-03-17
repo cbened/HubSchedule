@@ -1,17 +1,14 @@
 {
   "name": "hubschedule-outlook-addin",
   "version": "1.0.0",
-  "description": "Local Outlook add-in that displays recent HubSpot form submissions.",
+  "description": "Local Outlook add-in that embeds HubSpot submissions in a task pane.",
   "main": "server.js",
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
     "cert": "npx office-addin-dev-certs install"
   },
-  "dependencies": {
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2"
-  },
+  "dependencies": {},
   "devDependencies": {
     "office-addin-dev-certs": "^1.13.3"
   }
