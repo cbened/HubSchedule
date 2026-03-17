@@ -1,64 +1,56 @@
-# HubSchedule Outlook Add-in (Local)
+# HubSchedule Classic Outlook Add-in (COM)
 
-A local Outlook task pane add-in that embeds the HubSpot submissions page in a side panel.
+This repository is now structured as a **classic Outlook desktop COM add-in** for teams using classic Outlook instead of Office.js web add-ins.
 
-## What this project includes
+## What changed
 
-- `manifest.xml`: Outlook add-in manifest for sideloading.
-- `server.js`: Local Express server that serves the static add-in files.
-- `public/`: Task pane frontend with an embedded HubSpot submissions iframe.
+- Removed dependency on a sideloaded Office web-add-in manifest and localhost web server.
+- Added a .NET Framework COM add-in project that adds an Outlook ribbon toggle.
+- The add-in opens a local desktop window that embeds HubSpot submissions using WebView2.
+
+## Project layout
+
+- `HubSchedule.OutlookAddIn.sln` - Visual Studio solution.
+- `src/HubSchedule.OutlookAddIn/` - COM add-in source.
+  - `Connect.cs` - `IDTExtensibility2` + Ribbon callbacks.
+  - `RibbonXml.cs` - Ribbon definition for mail read + appointment compose.
+  - `HubScheduleWindow.cs` - Embedded WebView2 UI.
 
 ## Prerequisites
 
-- Node.js 18+
-- Outlook (desktop/web) with sideloading enabled.
+- Windows with classic Outlook installed.
+- Visual Studio 2022 (or compatible MSBuild for .NET Framework 4.8).
+- .NET Framework 4.8 targeting pack.
+- Microsoft Edge WebView2 Runtime.
 
-## Setup
+## Build
 
-1. Install dependencies:
+1. Open `HubSchedule.OutlookAddIn.sln` in Visual Studio.
+2. Restore NuGet packages.
+3. Build `Release | Any CPU`.
 
-   ```bash
-   npm install
-   ```
+## Register COM add-in (developer machine)
 
-2. Start the local add-in server:
+From a **Developer Command Prompt for Visual Studio**:
 
-   ```bash
-   npm run dev
-   ```
+```powershell
+regasm .\src\HubSchedule.OutlookAddIn\bin\Release\HubSchedule.OutlookAddIn.dll /codebase /tlb
+```
 
-3. Trust local cert for HTTPS (if needed in your environment):
+Then create these registry keys:
 
-   ```bash
-   npm run cert
-   ```
+```text
+HKCU\Software\Microsoft\Office\Outlook\Addins\HubSchedule.OutlookAddIn
+  (Default) = "HubSchedule Outlook Add-in"
+  FriendlyName = "HubSchedule Outlook Add-in"
+  Description = "Open HubSpot submissions in classic Outlook"
+  LoadBehavior (DWORD) = 3
+  CommandLineSafe (DWORD) = 0
+```
 
-4. Update `manifest.xml` URLs if your local host/port differ.
-
-## Sideload in Outlook
-
-- **Outlook on the web**: Settings → Manage add-ins → Add from file → select `manifest.xml`.
-- **Outlook desktop**: My Add-ins → Add a custom add-in → Add from file.
-
-The add-in command is available when:
-- reading an email message
-- creating/editing a calendar event as organizer (scheduling pane)
+Restart Outlook and enable the add-in if prompted.
 
 ## Notes
 
-- The task pane now loads the HubSpot submissions URL directly in an embedded iframe.
-- HubSpot authentication is handled by the HubSpot web app session inside the embedded page.
-
-## Binary-free icon handling
-
-To keep this repo PR-safe in environments that reject binary files, icon assets are stored as Base64 text files (`public/icon-*.png.txt`). Before sideloading in Outlook, convert them back to PNG files and remove the `.txt` suffix.
-
-Example conversion:
-
-```bash
-base64 -d public/icon-16.png.txt > public/icon-16.png
-base64 -d public/icon-32.png.txt > public/icon-32.png
-base64 -d public/icon-64.png.txt > public/icon-64.png
-base64 -d public/icon-80.png.txt > public/icon-80.png
-base64 -d public/icon-128.png.txt > public/icon-128.png
-```
+- This is desktop Outlook specific and does not run in Outlook on the web/new Outlook.
+- If WebView2 fails to initialize, the window shows an installation hint.
