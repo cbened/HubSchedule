@@ -29,26 +29,42 @@ This repository is now structured as a **classic Outlook desktop COM add-in** fo
 2. Restore NuGet packages.
 3. Build `Release | Any CPU`.
 
-## Register COM add-in (developer machine)
-
-From a **Developer Command Prompt for Visual Studio**:
+Or from CLI:
 
 ```powershell
-regasm .\src\HubSchedule.OutlookAddIn\bin\Release\HubSchedule.OutlookAddIn.dll /codebase /tlb
+dotnet build .\src\HubSchedule.OutlookAddIn\HubSchedule.OutlookAddIn.csproj -c Release
 ```
 
-Then create these registry keys:
+## Easy install / uninstall scripts
 
-```text
-HKCU\Software\Microsoft\Office\Outlook\Addins\HubSchedule.OutlookAddIn
-  (Default) = "HubSchedule Outlook Add-in"
-  FriendlyName = "HubSchedule Outlook Add-in"
-  Description = "Open HubSpot submissions in classic Outlook"
-  LoadBehavior (DWORD) = 3
-  CommandLineSafe (DWORD) = 0
+This repo now includes PowerShell helpers so you do not need to manually edit registry keys.
+
+Install for current user:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\install-addin.ps1
 ```
 
-Restart Outlook and enable the add-in if prompted.
+Uninstall for current user:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\uninstall-addin.ps1
+```
+
+Optional parameters:
+
+- `-DllPath <path>` when your DLL is in a non-default location.
+- `-RegAsmPath <path>` when `RegAsm.exe` is not auto-detected.
+
+## Create a distributable installer package
+
+To produce a zip package containing the DLL and install/uninstall scripts:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\create-installer-package.ps1
+```
+
+The script outputs a timestamped zip file under `dist/` that can be shared with users.
 
 ## Notes
 
