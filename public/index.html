@@ -5,32 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HubSchedule Submissions</title>
     <link rel="stylesheet" href="/styles.css" />
-    <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
   </head>
   <body>
     <main class="app-shell">
       <header class="app-header">
-        <div>
-          <h1>Recent HubSpot Submissions</h1>
-          <p id="formMeta" class="muted">Loading form details…</p>
-        </div>
-        <button id="refreshButton" class="primary">Refresh</button>
+        <h1>HubSpot Submissions</h1>
+        <a
+          href="https://app.hubspot.com/submissions/20528386/form/db8336e2-59e2-45bb-b79c-e36a355e42d6/submissions?redirectUrl=https%3A%2F%2Fapp.hubspot.com%2Fforms%2F20528386%2Fviews%2Fall_forms"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Open in new tab
+        </a>
       </header>
-
-      <section id="status" class="status muted">Initializing…</section>
-      <section id="submissionList" class="submission-list"></section>
+      <iframe
+        class="hubspot-frame"
+        title="HubSpot form submissions"
+        src="https://app.hubspot.com/submissions/20528386/form/db8336e2-59e2-45bb-b79c-e36a355e42d6/submissions?redirectUrl=https%3A%2F%2Fapp.hubspot.com%2Fforms%2F20528386%2Fviews%2Fall_forms"
+      ></iframe>
     </main>
-
-    <template id="submissionTemplate">
-      <article class="submission-card">
-        <div class="submission-card-top">
-          <h2 data-name>Unknown Contact</h2>
-          <span data-date></span>
-        </div>
-        <dl class="submission-fields" data-fields></dl>
-      </article>
-    </template>
-
-    <script src="/app.js" type="module"></script>
   </body>
 </html>

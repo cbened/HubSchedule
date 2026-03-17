@@ -1,20 +1,17 @@
 # HubSchedule Outlook Add-in (Local)
 
-A local Outlook task pane add-in that shows recent submissions for a specific HubSpot form in a clean side-pane UI.
+A local Outlook task pane add-in that embeds the HubSpot submissions page in a side panel.
 
 ## What this project includes
 
 - `manifest.xml`: Outlook add-in manifest for sideloading.
-- `server.js`: Local Express server that:
-  - Serves the task pane UI.
-  - Proxies HubSpot submissions API requests.
-- `public/`: Task pane frontend (HTML/CSS/JS).
+- `server.js`: Local Express server that serves the static add-in files.
+- `public/`: Task pane frontend with an embedded HubSpot submissions iframe.
 
 ## Prerequisites
 
 - Node.js 18+
 - Outlook (desktop/web) with sideloading enabled.
-- HubSpot Private App token with form read access.
 
 ## Setup
 
@@ -24,46 +21,33 @@ A local Outlook task pane add-in that shows recent submissions for a specific Hu
    npm install
    ```
 
-2. Create `.env` from `.env.example` and fill in values:
-
-   ```bash
-   cp .env.example .env
-   ```
-
-3. Start the local add-in server:
+2. Start the local add-in server:
 
    ```bash
    npm run dev
    ```
 
-4. Trust local cert for HTTPS (if needed in your environment):
+3. Trust local cert for HTTPS (if needed in your environment):
 
    ```bash
    npm run cert
    ```
 
-5. Update `manifest.xml` URLs if your local host/port differ.
-
-## Environment variables
-
-- `PORT` (default: `3000`)
-- `HUBSPOT_PRIVATE_APP_TOKEN` (required)
-- `HUBSPOT_FORM_ID` (required)
-- `HUBSPOT_PORTAL_ID` (optional, used in display only)
-- `SUBMISSION_PAGE_SIZE` (default: `25`)
+4. Update `manifest.xml` URLs if your local host/port differ.
 
 ## Sideload in Outlook
 
 - **Outlook on the web**: Settings → Manage add-ins → Add from file → select `manifest.xml`.
 - **Outlook desktop**: My Add-ins → Add a custom add-in → Add from file.
 
-Then open an email and launch **HubSchedule Submissions** from the ribbon.
+The add-in command is available when:
+- reading an email message
+- creating/editing a calendar event as organizer (scheduling pane)
 
 ## Notes
 
-- This project fetches submissions server-side to keep your HubSpot token out of the browser.
-- The task pane auto-refreshes every 60 seconds and includes a manual refresh button.
-
+- The task pane now loads the HubSpot submissions URL directly in an embedded iframe.
+- HubSpot authentication is handled by the HubSpot web app session inside the embedded page.
 
 ## Binary-free icon handling
 

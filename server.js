@@ -1,83 +1,48 @@
+const http = require("http");
+const fs = require("fs");
 const path = require("path");
-const express = require("express");
-const dotenv = require("dotenv");
 
-dotenv.config();
-
-const app = express();
 const port = Number(process.env.PORT || 3000);
-const formId = process.env.HUBSPOT_FORM_ID;
-const portalId = process.env.HUBSPOT_PORTAL_ID;
-const token = process.env.HUBSPOT_PRIVATE_APP_TOKEN;
-const pageSize = Number(process.env.SUBMISSION_PAGE_SIZE || 25);
+const publicDir = path.join(__dirname, "public");
 
-app.use(express.static(path.join(__dirname, "public")));
+const contentTypes = {
+  ".html": "text/html; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".js": "application/javascript; charset=utf-8",
+  ".txt": "text/plain; charset=utf-8",
+  ".png": "image/png",
+};
 
-app.get("/health", (_req, res) => {
-  res.json({ ok: true });
-});
-
-app.get("/api/submissions", async (_req, res) => {
-  if (!formId || !token) {
-    return res.status(500).json({
-      error: "Missing HUBSPOT_FORM_ID or HUBSPOT_PRIVATE_APP_TOKEN in environment.",
-    });
+const server = http.createServer((req, res) => {
+  if (req.url === "/health") {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ ok: true }));
+    return;
   }
 
-  try {
-    const endpoint = `https://api.hubapi.com/form-integrations/v1/submissions/forms/${formId}`;
-    const query = new URLSearchParams({ limit: String(pageSize) });
-    const response = await fetch(`${endpoint}?${query.toString()}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+  const requestPath = req.url === "/" ? "/index.html" : req.url;
+  const filePath = path.join(publicDir, path.normalize(requestPath).replace(/^\.+/, ""));
 
-    if (!response.ok) {
-      const body = await response.text();
-      return res.status(response.status).json({
-        error: `HubSpot API error: ${body}`,
-      });
-    }
-
-    const data = await response.json();
-    const results = normalizeSubmissions(data?.results || data || []);
-
-    return res.json({
-      meta: {
-        formId,
-        portalId: portalId || null,
-      },
-      results,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      error: error.message || "Unexpected server error.",
-    });
+  if (!filePath.startsWith(publicDir)) {
+    res.writeHead(403, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end("Forbidden");
+    return;
   }
-});
 
-function normalizeSubmissions(records) {
-  return records.map((row) => {
-    const values = {};
-    const fields = row.values || row.submissionValues || [];
-
-    if (Array.isArray(fields)) {
-      for (const field of fields) {
-        const key = field.name || field.fieldName || "field";
-        values[key] = field.value;
-      }
-    } else {
-      Object.assign(values, fields);
+  fs.readFile(filePath, (error, data) => {
+    if (error) {
+      res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+      res.end("Not found");
+      return;
     }
 
-    return {
-      submittedAt: row.submittedAt || row.submittedAtTimestamp || row.timestamp || Date.now(),
-      values,
-    };
+    const ext = path.extname(filePath).toLowerCase();
+    const type = contentTypes[ext] || "application/octet-stream";
+    res.writeHead(200, { "Content-Type": type });
+    res.end(data);
   });
-}
+});
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`HubSchedule add-in server listening on http://localhost:${port}`);
 });
